@@ -1,0 +1,54 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "mysql"
+  url      = env("DATABASE_URL")
+}
+
+//Modelos db
+model Ratings {
+    IdRating    Int    @id @default(autoincrement())
+    RatingValue String @db.VarChar(255)
+}
+
+model Directors  {
+IdDirector   Int      @id @default(autoincrement())
+DirectorName String  @db.VarChar(255)
+films Films[]
+}
+
+model Genres {
+    IdGenre   Int      @id @default(autoincrement())
+    GenreName String  @db.VarChar(255)
+    films Films[]
+}
+model Films {
+    IdFilm   Int      @id @default(autoincrement())
+    FilmName String  @db.VarChar(255)
+    IdDirector Int
+    imagenUrl String  @db.VarChar(255)
+    IdGenre Int
+    director Directors @relation(fields: [IdDirector], references: [IdDirector])
+    genre Genres @relation(fields: [IdGenre], references: [IdGenre])
+}
+
+
+model Users {
+    IdUser   Int      @id @default(autoincrement())
+    UserName String  @db.VarChar(255)
+    UserPassword String  @db.VarChar(255)
+    UserEmail String  @db.VarChar(255)
+    UserRol Int
+    rol Roles @relation(fields: [UserRol], references: [IdRol])
+}
+
+model Roles {
+    IdRol   Int      @id @default(autoincrement())
+    RolName String  @db.VarChar(255)
+    user Users[]
+}
