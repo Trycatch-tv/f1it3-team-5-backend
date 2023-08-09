@@ -35,6 +35,7 @@ model Films {
     IdGenre Int
     director Directors @relation(fields: [IdDirector], references: [IdDirector])
     genre Genres @relation(fields: [IdGenre], references: [IdGenre])
+    usuarios Users[]
 }
 
 
@@ -45,6 +46,7 @@ model Users {
     UserEmail String  @db.VarChar(255)
     UserRol Int
     rol Roles @relation(fields: [UserRol], references: [IdRol])
+    films Films[]
 }
 
 model Roles {

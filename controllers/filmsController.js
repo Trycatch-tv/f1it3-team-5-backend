@@ -1,37 +1,53 @@
 // src/controllers/filmsController.js
-import { PrismaClient } from "@prisma/client";
-const prisma = new PrismaClient();
+const { body } = require('express-validator');
+const prisma = require('../config/db')
+const handlerError = require('../utils/handleError')
 
-export const createFilm = async (req, res) => {
+ const createFilm = async (req, res) => {
+ 
   try {
     const { FilmName, IdDirector, imagenUrl, IdGenre } = req.body;
-    const film = await prisma.films.create({
+ 
+    if(!req.file) return handlerError(res, error,400)
+    const director = IdDirector
+    const genre = IdGenre
+    const imgUrl = req.file.filename
+    const imageUrl = `http://localhost:3000/storage/${imgUrl}`;
+   
+    const film = await prisma.Films.create({
       data: {
         FilmName,
-        IdDirector,
-        imagenUrl,
-        IdGenre,
+        IdDirector: parseInt(director),
+        imagenUrl: imageUrl,
+        IdGenre: parseInt(genre),
       },
     });
-    res.status(201).json(film);
+    res.send({data:film});
   } catch (error) {
-    res.status(500).json({ error: "Error creating film" });
+    handlerError(res, error,400);
   }
 };
 
-export const getFilms = async (req, res) => {
+ const getFilms = async (req, res) => {
   try {
-    const films = await prisma.films.findMany();
-    res.json(films);
+    const films = await prisma.Films.findMany(
+      {
+        include: {
+          director: true,
+          genre: true,
+        }
+      }
+    );
+    res.send({films});
   } catch (error) {
-    res.status(500).json({ error: "Error fetching films" });
+    handlerError(res, error,500);
   }
 };
 
-export const getFilmById = async (req, res) => {
+ const getFilmById = async (req, res) => {
   try {
     const { id } = req.params;
-    const film = await prisma.films.findUnique({
+    const film = await prisma.Films.findUnique({
       where: { IdFilm: parseInt(id) },
       include: {
         director: true,
@@ -39,42 +55,47 @@ export const getFilmById = async (req, res) => {
       },
     });
     if (!film) {
-      res.status(404).json({ message: "Film not found" });
+      return handlerError(res, "not found",402)
     } else {
-      res.json(film);
+      res.send({film});
     }
   } catch (error) {
-    res.status(500).json({ error: "Error fetching film" });
+    return handlerError(res, error,402)
   }
 };
 
-export const updateFilm = async (req, res) => {
+ const updateFilm = async (req, res) => {
   try {
     const { id } = req.params;
     const { FilmName, IdDirector, imagenUrl, IdGenre } = req.body;
-    const updatedFilm = await prisma.films.update({
+    const director = IdDirector
+    const genre = IdGenre
+    const imgUrl = req.file.filename
+    const imageUrl = `http://localhost:3000/storage/${imgUrl}`;
+    const updatedFilm = await prisma.Films.update({
       where: { IdFilm: parseInt(id) },
       data: {
         FilmName,
-        IdDirector,
-        imagenUrl,
-        IdGenre,
+        IdDirector: parseInt(director),
+        imagenUrl: imageUrl,
+        IdGenre: parseInt(genre),
       },
     });
-    res.json(updatedFilm);
+    res.send({data:updatedFilm});
   } catch (error) {
-    res.status(500).json({ error: "Error updating film" });
+    return handlerError(res, error.message,500)
   }
 };
 
-export const deleteFilm = async (req, res) => {
+ const deleteFilm = async (req, res) => {
   try {
     const { id } = req.params;
-    await prisma.films.delete({
+    await prisma.Films.delete({
       where: { IdFilm: parseInt(id) },
     });
-    res.json({ message: "Film deleted successfully" });
+    res.send({ message: "Film deleted successfully" });
   } catch (error) {
-    res.status(500).json({ error: "Error deleting film" });
+    return handlerError(res, error,500)
   }
 };
+module.exports = { createFilm, getFilms, getFilmById, updateFilm, deleteFilm}
