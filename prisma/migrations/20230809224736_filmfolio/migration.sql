@@ -1,12 +1,3 @@
-/*
-  Warnings:
-
-  - You are about to drop the `user` table. If the table is not empty, all the data it contains will be lost.
-
-*/
--- DropTable
-DROP TABLE `user`;
-
 -- CreateTable
 CREATE TABLE `Ratings` (
     `IdRating` INTEGER NOT NULL AUTO_INCREMENT,
@@ -61,6 +52,15 @@ CREATE TABLE `Roles` (
     PRIMARY KEY (`IdRol`)
 ) DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
 
+-- CreateTable
+CREATE TABLE `_FilmsToUsers` (
+    `A` INTEGER NOT NULL,
+    `B` INTEGER NOT NULL,
+
+    UNIQUE INDEX `_FilmsToUsers_AB_unique`(`A`, `B`),
+    INDEX `_FilmsToUsers_B_index`(`B`)
+) DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
+
 -- AddForeignKey
 ALTER TABLE `Films` ADD CONSTRAINT `Films_IdDirector_fkey` FOREIGN KEY (`IdDirector`) REFERENCES `Directors`(`IdDirector`) ON DELETE RESTRICT ON UPDATE CASCADE;
 
@@ -69,3 +69,9 @@ ALTER TABLE `Films` ADD CONSTRAINT `Films_IdGenre_fkey` FOREIGN KEY (`IdGenre`) 
 
 -- AddForeignKey
 ALTER TABLE `Users` ADD CONSTRAINT `Users_UserRol_fkey` FOREIGN KEY (`UserRol`) REFERENCES `Roles`(`IdRol`) ON DELETE RESTRICT ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE `_FilmsToUsers` ADD CONSTRAINT `_FilmsToUsers_A_fkey` FOREIGN KEY (`A`) REFERENCES `Films`(`IdFilm`) ON DELETE CASCADE ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE `_FilmsToUsers` ADD CONSTRAINT `_FilmsToUsers_B_fkey` FOREIGN KEY (`B`) REFERENCES `Users`(`IdUser`) ON DELETE CASCADE ON UPDATE CASCADE;
